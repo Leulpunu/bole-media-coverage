@@ -1,0 +1,55 @@
+{
+  "app": {
+    "title": "ቦሌ ክፍለ ከተማ የግንኙነት ቢሮ",
+    "subtitle": "የሚዲያ ሸፈን ጥያቄ ስርአት",
+    "welcome": "ወደ የሚዲያ ሸፈን ጥያቄ ፖርታል እንኳን በደህና መጡ"
+  },
+  "nav": {
+    "home": "መነሻ ገጽ",
+    "request": "ጥያቄ አስገባ",
+    "track": "ጥያቄን ክትትል",
+    "guidelines": "መመሪያዎች",
+    "contact": "አግኙን"
+  },
+  "form": {
+    "title": "የሚዲያ ሸፈን ጥያቄ ፎርም",
+    "organization": "የድርጅት ስም",
+    "contactPerson": "የግንኙነት ሰው",
+    "phone": "ስልክ ቁጥር",
+    "email": "ኢሜል አድራሻ",
+    "eventDate": "የክስተት ቀን",
+    "eventTime": "የክስተት ሰዓት",
+    "location": "የክስተት ቦታ",
+    "eventType": "የክስተት አይነት",
+    "eventTypes": {
+      "pressConference": "የፕሬስ ኮንፈረንስ",
+      "officialCeremony": "ይፋዊ ሥነ ሥርዓት",
+      "communityEvent": "የማህበረሰብ ክስተት",
+      "emergency": "አደጋ ማስታወቂያ",
+      "other": "ሌላ"
+    },
+    "mediaType": "የሚያስፈልገው ሚዲያ ሸፈን",
+    "mediaTypes": {
+      "tv": "ቴሌቪዥን",
+      "radio": "ራዲዮ",
+      "print": "የህትመት ሚዲያ",
+      "online": "ኦንላይን ሚዲያ",
+      "all": "ሁሉም የሚዲያ አይነቶች"
+    },
+    "description": "የክስተት መግለጫ",
+    "expectedAudience": "የሚጠበቅ ታዳሚ",
+    "specialRequirements": "ልዩ መስፈርቶች",
+    "submit": "ጥያቄ አስገባ",
+    "reset": "ፎርም አጽዳ"
+  },
+  "validation": {
+    "required": "ይህ መስክ አስፈላጊ ነው",
+    "email": "እባክዎ ትክክለኛ ኢሜል ያስገቡ",
+    "phone": "እባክዎ ትክክለኛ ስልክ ቁጥር ያስገቡ"
+  },
+  "messages": {
+    "success": "ጥያቄዎ በተሳካ ሁኔታ ቀርቧል!",
+    "error": "ስህተት ተከስቷል። እባክዎ እንደገና ይሞክሩ።",
+    "trackingNumber": "የእርስዎ የክትትል ቁጥር ነው፡ {number}"
+  }
+}

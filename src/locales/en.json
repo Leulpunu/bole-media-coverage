@@ -1,0 +1,83 @@
+{
+  "app": {
+    "title": "Bole Sub City Communication Office",
+    "subtitle": "Media Coverage Request System",
+    "welcome": "Welcome to our media coverage request portal"
+  },
+  "nav": {
+    "home": "Home",
+    "request": "Submit Request",
+    "track": "Track Request",
+    "guidelines": "Guidelines",
+    "contact": "Contact",
+    "admin": "Admin"
+  },
+  "form": {
+    "title": "Media Coverage Request Form",
+    "organization": "Organization Name",
+    "contactPerson": "Contact Person",
+    "phone": "Phone Number",
+    "email": "Email Address",
+    "eventDate": "Event Date",
+    "eventTime": "Event Time",
+    "location": "Event Location",
+    "eventType": "Type of Event",
+    "eventTypes": {
+      "pressConference": "Press Conference",
+      "officialCeremony": "Official Ceremony",
+      "communityEvent": "Community Event",
+      "emergency": "Emergency Announcement",
+      "other": "Other"
+    },
+    "mediaType": "Required Media Coverage",
+    "mediaTypes": {
+      "tv": "Television",
+      "radio": "Radio",
+      "print": "Print Media",
+      "online": "Online Media",
+      "all": "All Media Types"
+    },
+    "description": "Event Description",
+    "expectedAudience": "Expected Audience",
+    "specialRequirements": "Special Requirements",
+    "submit": "Submit Request",
+    "reset": "Reset Form"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email",
+    "phone": "Please enter a valid phone number"
+  },
+  "messages": {
+    "success": "Request submitted successfully!",
+    "error": "An error occurred. Please try again.",
+    "trackingNumber": "Your tracking number is: {number}"
+  },
+  "login": {
+    "title": "Login",
+    "username": "Username",
+    "password": "Password",
+    "role": "Login As",
+    "admin": "Administrator",
+    "client": "Client",
+    "signIn": "Sign In",
+    "adminCredentials": "Admin Credentials:"
+  },
+  "user": {
+    "login": "Login",
+    "logout": "Logout",
+    "welcome": "Welcome"
+  },
+  "admin": {
+    "title": "User Management",
+    "addUser": "Add New User",
+    "username": "Username",
+    "password": "Password",
+    "add": "Add User",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this user?",
+    "userAdded": "User added successfully",
+    "userDeleted": "User deleted successfully",
+    "users": "Users"
+  }
+}
