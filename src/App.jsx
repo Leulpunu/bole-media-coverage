@@ -1,101 +1,90 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { LanguageProvider, useLanguage } from './components/LanguageContext';
-import { AuthProvider } from './components/AuthContext';
+import CssBaseline from '@mui/material/CssBaseline';
+import { AuthProvider, useAuth } from './components/AuthContext';
+import { LanguageProvider } from './components/LanguageContext';
 import Header from './components/Header';
+import Footer from './components/Footer';
+import Login from './components/Login';
+import Home from './components/Home';
 import RequestForm from './components/RequestForm';
 import StatusTracker from './components/statusTracker';
-import Login from './components/Login';
 import AdminPanel from './components/AdminPanel';
 import ProtectedRoute from './components/ProtectedRoute';
-import './styles/App.css';
+import Guidelines from './components/Guidelines';
+import Contact from './components/Contact';
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#2E7D32', // Green color
+      main: '#1976d2',
     },
     secondary: {
-      main: '#D32F2F', // Red color
+      main: '#dc004e',
     },
-  },
-  typography: {
-    fontFamily: [
-      'Roboto',
-      '"Noto Sans Ethiopic"',
-      'sans-serif'
-    ].join(','),
   },
 });
 
+const AppContent = () => {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  // Don't show header on login page or when not authenticated
+  const showHeader = isAuthenticated && location.pathname !== '/' && location.pathname !== '/login';
+
+  // Show footer on home page, login page, and authenticated pages
+  const showFooter = location.pathname === '/' || location.pathname === '/login' || isAuthenticated;
+
+  return (
+    <div className="App">
+      {showHeader && <Header />}
+      <Routes>
+        <Route path="/" element={isAuthenticated ? <Home /> : <Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/request" element={
+          <ProtectedRoute>
+            <RequestForm />
+          </ProtectedRoute>
+        } />
+        <Route path="/track" element={
+          <ProtectedRoute>
+            <StatusTracker />
+          </ProtectedRoute>
+        } />
+        <Route path="/guidelines" element={
+          <ProtectedRoute>
+            <Guidelines />
+          </ProtectedRoute>
+        } />
+        <Route path="/contact" element={
+          <ProtectedRoute>
+            <Contact />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute adminOnly>
+            <AdminPanel />
+          </ProtectedRoute>
+        } />
+      </Routes>
+      {showFooter && <Footer />}
+    </div>
+  );
+};
+
 function App() {
   return (
-    <AuthProvider>
-      <LanguageProvider>
-        <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <LanguageProvider>
           <Router>
-            <div className="App">
-              <Header />
-              <main>
-                <Routes>
-                  <Route path="/" element={<Login />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/request" element={<ProtectedRoute><RequestForm /></ProtectedRoute>} />
-                  <Route path="/track" element={<ProtectedRoute><StatusTracker /></ProtectedRoute>} />
-                  <Route path="/admin" element={<ProtectedRoute adminOnly><AdminPanel /></ProtectedRoute>} />
-                  <Route path="/guidelines" element={<GuidelinesPage />} />
-                  <Route path="/contact" element={<ContactPage />} />
-                </Routes>
-              </main>
-              <Footer />
-            </div>
+            <AppContent />
           </Router>
-        </ThemeProvider>
-      </LanguageProvider>
-    </AuthProvider>
-  );
-}
-
-
-
-function GuidelinesPage() {
-  const { t } = useLanguage();
-
-  return (
-    <div className="guidelines">
-      <h2>{t('guidelines.title', 'Media Coverage Guidelines')}</h2>
-      <ul>
-        <li>{t('guidelines.1', 'Submit requests at least 48 hours in advance')}</li>
-        <li>{t('guidelines.2', 'Provide accurate event details')}</li>
-        <li>{t('guidelines.3', 'Include contact information')}</li>
-        <li>{t('guidelines.4', 'Specify media requirements clearly')}</li>
-      </ul>
-    </div>
-  );
-}
-
-function ContactPage() {
-  const { t } = useLanguage();
-
-  return (
-    <div className="contact">
-      <h2>{t('contact.title', 'Contact Information')}</h2>
-      <p><strong>{t('contact.address', 'Address')}:</strong> Bole Sub City Communication Office, Addis Ababa</p>
-      <p><strong>{t('contact.phone', 'Phone')}:</strong> +251-XXX-XXXXXX</p>
-      <p><strong>{t('contact.email', 'Email')}:</strong> bole.communication@addisababa.gov.et</p>
-    </div>
-  );
-}
-
-function Footer() {
-  const { t } = useLanguage();
-
-  return (
-    <footer>
-      <p>© {new Date().getFullYear()} Bole Sub City Communication Office</p>
-      <p>{t('footer.officeHours', 'Office Hours: Mon-Fri, 8:30 AM - 5:30 PM')}</p>
-    </footer>
+        </LanguageProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

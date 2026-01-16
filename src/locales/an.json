@@ -9,7 +9,8 @@
     "request": "ጥያቄ አስገባ",
     "track": "ጥያቄን ክትትል",
     "guidelines": "መመሪያዎች",
-    "contact": "አግኙን"
+    "contact": "አግኙን",
+    "admin": "አስተያየት"
   },
   "form": {
     "title": "የሚዲያ ሸፈን ጥያቄ ፎርም",
@@ -51,5 +52,50 @@
     "success": "ጥያቄዎ በተሳካ ሁኔታ ቀርቧል!",
     "error": "ስህተት ተከስቷል። እባክዎ እንደገና ይሞክሩ።",
     "trackingNumber": "የእርስዎ የክትትል ቁጥር ነው፡ {number}"
+  },
+  "login": {
+    "title": "መግቢያ",
+    "welcome": "ወደ ቦሌ ክፍለ ከተማ ግንኙነት እንኳን በደህና መጡ",
+    "username": "የተጠቃሚ ስም",
+    "password": "የይለፍ ቃል",
+    "role": "እንደ መግቢያ",
+    "admin": "አስተያየት",
+    "client": "የድርጅት ተወካይ",
+    "signIn": "ግባ",
+    "adminCredentials": "የአስተያየት ምክንያቶች፡"
+  },
+  "home": {
+    "submitRequest": "የሚዲያ ሸፈን ጥያቄ አስገባ",
+    "submitRequestDesc": "ለክስተትዎ አዲስ የሚዲያ ሸፈን ጥያቄ ይስጡ",
+    "trackRequest": "ጥያቄን ክትትል",
+    "trackRequestDesc": "ያስገቡትን ጥያቄ ሁኔታ ይፈትሹ",
+    "guidelines": "መመሪያዎችን ያንብቡ",
+    "guidelinesDesc": "የሚዲያ ሸፈን መመሪያዎች እና መስፈርቶችን ያንብቡ",
+    "contact": "አግኙን",
+    "contactDesc": "የድጋፍ ቡድናችንን ያግኙ",
+    "go": "ሂድ",
+    "subtitle": "የሚዲያ ሸፈን ጥያቄዎችን በተሳካ ሁኔታ ያስተያዩ",
+    "adminPanel": "የአስተያየት ፓነል መዳረሻ",
+    "adminDesc": "አስተያየት ስልጣን አለዎት። ጥያቄዎችን እና ተጠቃሚዎችን ለማስተያየት የአስተያየት ፓነል ያስገቡ።",
+    "goToAdmin": "ወደ አስተያየት ፓነል ሂድ",
+    "recentActivity": "የቅርቡ ተግባራት",
+    "noRecentActivity": "ለማሳየት የሚሆን የቅርቡ ተግባር የለም። ለመጀመር ጥያቄ ያስገቡ።"
+  },
+  "user": {
+    "login": "መግቢያ",
+    "logout": "ውጣ",
+    "welcome": "እንኳን በደህና መጡ"
+  },
+  "admin": {
+    "title": "የተጠቃሚ አስተያየት",
+    "addUser": "አዲስ ተጠቃሚ አስገባ",
+    "username": "የተጠቃሚ ስም",
+    "password": "የይለፍ ቃል",
+    "add": "ተጠቃሚ አስገባ",
+    "delete": "ሰርዝ",
+    "confirmDelete": "ይህን ተጠቃሚ መሰረዝ እንደሚፈልጉ እርግጠኛ ነዎት?",
+    "userAdded": "ተጠቃሚ በተሳካ ሁኔታ ተካፈለ",
+    "userDeleted": "ተጠቃሚ ተሰራ",
+    "users": "ተጠቃሚዎች"
   }
 }

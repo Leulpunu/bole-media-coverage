@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useLanguage } from './LanguageContext';
-import { 
-  TextField, 
-  Button, 
-  Container, 
-  Grid, 
-  Paper, 
+import {
+  TextField,
+  Button,
+  Container,
+  Grid,
+  Paper,
   Typography,
   Select,
   MenuItem,
@@ -17,6 +17,7 @@ import {
 import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { mediaRequestService } from '../services/api';
+import BackButton from './BackButton';
 
 const RequestForm = () => {
   const { t } = useLanguage();
@@ -124,8 +125,11 @@ const RequestForm = () => {
       specialRequirements: ''
     });
     setErrors({});
-  };return (
+  };
+
+  return (
     <Container maxWidth="lg">
+      <BackButton />
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
         <Typography variant="h4" gutterBottom align="center">
           {t('form.title')}

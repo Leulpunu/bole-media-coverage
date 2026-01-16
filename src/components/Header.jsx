@@ -164,17 +164,26 @@ const Header = () => {
           </Button>
         )}
 
-        <IconButton
+        <Button
           color="inherit"
           onClick={toggleLanguage}
-          sx={{ ml: 1 }}
+          startIcon={<LanguageIcon />}
+          sx={{
+            ml: 1,
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: 2,
+            px: 2,
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              borderColor: 'rgba(255, 255, 255, 0.5)'
+            }
+          }}
           aria-label="switch language"
         >
-          <LanguageIcon />
-          <Typography variant="caption" sx={{ ml: 1 }}>
-            {language === 'en' ? 'አማ' : 'EN'}
+          <Typography variant="button" sx={{ fontWeight: 'bold' }}>
+            {language === 'en' ? 'አማርኛ' : 'English'}
           </Typography>
-        </IconButton>
+        </Button>
       </Toolbar>
     </AppBar>
   );

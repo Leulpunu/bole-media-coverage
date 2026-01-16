@@ -23,7 +23,12 @@ import {
   TextField,
   Tabs,
   Tab,
-  Box
+  Box,
+  Card,
+  CardContent,
+  Grid,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import { useLanguage } from './LanguageContext';
 import { useAuth } from './AuthContext';
@@ -32,6 +37,8 @@ import api from '../services/api';
 const AdminPanel = () => {
   const { t } = useLanguage();
   const { createClient, getClients, deleteClient } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [activeTab, setActiveTab] = useState(0);
   const [requests, setRequests] = useState([]);
   const [users, setUsers] = useState([]);
@@ -412,39 +419,71 @@ const AdminPanel = () => {
               </Button>
             </Box>
 
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>{t('admin.userTable.username', 'Username')}</TableCell>
-                    <TableCell>{t('admin.userTable.role', 'Role')}</TableCell>
-                    <TableCell>{t('admin.userTable.createdAt', 'Created At')}</TableCell>
-                    <TableCell>{t('admin.userTable.actions', 'Actions')}</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>{user.username}</TableCell>
-                      <TableCell>{user.role}</TableCell>
-                      <TableCell>
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          size="small"
-                          onClick={() => handleDeleteUser(user.id)}
-                        >
-                          {t('admin.deleteUser', 'Delete')}
-                        </Button>
-                      </TableCell>
+            {isMobile ? (
+              <Grid container spacing={2}>
+                {users.map((user) => (
+                  <Grid item xs={12} key={user.id}>
+                    <Card sx={{ mb: 2 }}>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                          {user.username}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                          {t('admin.userTable.role', 'Role')}: {user.role}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                          {t('admin.userTable.createdAt', 'Created At')}: {new Date(user.createdAt).toLocaleDateString()}
+                        </Typography>
+                        <Box sx={{ mt: 2 }}>
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            size="small"
+                            onClick={() => handleDeleteUser(user.id)}
+                          >
+                            {t('admin.deleteUser', 'Delete')}
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{t('admin.userTable.username', 'Username')}</TableCell>
+                      <TableCell>{t('admin.userTable.role', 'Role')}</TableCell>
+                      <TableCell>{t('admin.userTable.createdAt', 'Created At')}</TableCell>
+                      <TableCell>{t('admin.userTable.actions', 'Actions')}</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>{user.username}</TableCell>
+                        <TableCell>{user.role}</TableCell>
+                        <TableCell>
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            size="small"
+                            onClick={() => handleDeleteUser(user.id)}
+                          >
+                            {t('admin.deleteUser', 'Delete')}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
 
             {users.length === 0 && (
               <Typography variant="body1" align="center" sx={{ mt: 3 }}>

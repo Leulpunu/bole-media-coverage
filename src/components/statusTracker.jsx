@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { useLanguage } from './LanguageContext';
 import SearchIcon from '@mui/icons-material/Search';
+import BackButton from './BackButton';
 
 const StatusTracker = () => {
   const { t } = useLanguage();
@@ -63,6 +64,7 @@ const StatusTracker = () => {
   return (
     <Container maxWidth="md">
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
+        <BackButton />
         <Typography variant="h4" gutterBottom align="center">
           {t('nav.track')}
         </Typography>

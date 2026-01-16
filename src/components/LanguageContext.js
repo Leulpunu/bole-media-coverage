@@ -11,6 +11,10 @@ export const LanguageProvider = ({ children }) => {
     setLanguage(prev => prev === 'en' ? 'am' : 'en');
   };
 
+  const changeLanguage = (newLanguage) => {
+    setLanguage(newLanguage);
+  };
+
   const t = (key, fallback = '') => {
     const keys = key.split('.');
     let value = language === 'en' ? en : am;
@@ -21,7 +25,7 @@ export const LanguageProvider = ({ children }) => {
   };
 
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage, t }}>
+    <LanguageContext.Provider value={{ language, toggleLanguage, changeLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );

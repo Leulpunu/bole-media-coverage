@@ -9,11 +9,16 @@ import {
   Paper,
   Typography,
   Alert,
-  Box
+  Box,
+  AppBar,
+  Toolbar,
+  FormControl,
+  Select,
+  MenuItem
 } from '@mui/material';
 
 const Login = () => {
-  const { t } = useLanguage();
+  const { t, language, changeLanguage } = useLanguage();
   const { login } = useAuth();
   const navigate = useNavigate();
   const [credentials, setCredentials] = useState({
@@ -45,11 +50,27 @@ const Login = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
-        <Typography variant="h4" gutterBottom align="center">
-          {t('login.title', 'Welcome to Bole Media Coverage')}
-        </Typography>
+    <div>
+      <AppBar position="static" sx={{ mb: 4 }}>
+        <Toolbar sx={{ justifyContent: 'flex-end' }}>
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <Select
+              value={language}
+              onChange={(e) => changeLanguage(e.target.value)}
+              sx={{ color: 'white', '& .MuiOutlinedInput-notchedOutline': { borderColor: 'white' } }}
+            >
+              <MenuItem value="en">English</MenuItem>
+              <MenuItem value="am">አማርኛ</MenuItem>
+            </Select>
+          </FormControl>
+        </Toolbar>
+      </AppBar>
+
+      <Container maxWidth="sm">
+        <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
+          <Typography variant="h4" gutterBottom align="center">
+            {t('login.welcome', 'Welcome Bole subcity communciation')}
+          </Typography>
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -90,8 +111,13 @@ const Login = () => {
             </Button>
           </Box>
         </form>
+        
+        <Typography variant="body2" color="textSecondary" align="center" sx={{ mt: 2 }}>
+          copy right Version 1.0.0 - ELT Technology
+        </Typography>
       </Paper>
     </Container>
+    </div>
   );
 };
 
