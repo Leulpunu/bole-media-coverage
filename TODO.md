@@ -16,7 +16,7 @@
 
 ## Next Steps
 
-- [ ] Redeploy the project to Netlify (commit and push the changes)
+- [x] Redeploy the project to Netlify (commit and push the changes)
 - [ ] Test the login functionality on the deployed site
 - [ ] Verify that the JSON parsing and favicon 404 errors are resolved
 
