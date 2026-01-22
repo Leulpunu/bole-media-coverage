@@ -6,11 +6,11 @@
 - [x] Restructured API functions for Netlify deployment:
   - Moved `api/login.js` to `netlify/functions/login.js`
   - Created `netlify/functions/admin-users.js` for GET/POST operations
-  - Created `netlify/functions/admin-users-[userId].js` for DELETE operations
+  - Merged DELETE operations into `netlify/functions/admin/users.js` to handle dynamic userId from path
 - [x] Updated AuthContext.js API URLs for Netlify:
   - Login: `/api/login`
-  - Admin users: `/api/admin-users`
-  - Admin user delete: `/api/admin-users-{userId}`
+  - Admin users: `/api/admin/users`
+  - Admin user delete: `/api/admin/users/${userId}`
 - [x] Created netlify.toml for proper Netlify configuration with functions directory
 - [x] Built the project successfully - no compilation errors
 
