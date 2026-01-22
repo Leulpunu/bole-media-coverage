@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await fetch('/.netlify/functions/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
 
   const createClient = async (username, password) => {
     try {
-      const response = await fetch('/.netlify/functions/admin/users', {
+      const response = await fetch('/api/admin/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }) => {
 
   const getClients = async () => {
     try {
-      const response = await fetch('/.netlify/functions/admin/users');
+      const response = await fetch('/api/admin/users');
       const data = await response.json();
 
       if (response.ok) {
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
 
   const deleteClient = async (userId) => {
     try {
-      const response = await fetch(`/.netlify/functions/admin/users/${userId}`, {
+      const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'DELETE',
       });
 
