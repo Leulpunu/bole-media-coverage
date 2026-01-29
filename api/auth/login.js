@@ -16,24 +16,22 @@ module.exports = function handler(req, res) {
     return;
   }
 
-  if (req.method === 'DELETE') {
+  if (req.method === 'POST') {
     try {
-      const { userId } = req.query;
-      const userIndex = users.findIndex(u => u.id === userId);
+      const { username, password } = req.body;
+      const user = users.find(u => u.username === username && u.password === password);
 
-      if (userIndex === -1) {
-        return res.status(404).json({ success: false, message: 'User not found' });
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Invalid credentials' });
       }
 
-      users.splice(userIndex, 1);
-
-      res.json({ success: true, message: 'User deleted successfully' });
+      res.json({ success: true, user: { id: user.id, username: user.username, role: user.role } });
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error('Error logging in:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
   } else {
-    res.setHeader('Allow', ['DELETE']);
+    res.setHeader('Allow', ['POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

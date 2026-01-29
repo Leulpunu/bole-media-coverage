@@ -1,8 +1,5 @@
 // In-memory storage (in production, use a database)
-let users = [
-  { id: '1', username: 'admin', password: 'admin123', role: 'admin' },
-  { id: '2', username: 'user', password: 'user123', role: 'user' }
-];
+let mediaRequests = [];
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -17,16 +14,25 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
-      const { username, password } = req.body;
-      const user = users.find(u => u.username === username && u.password === password);
+      const requestData = req.body;
+      const newRequest = {
+        id: (mediaRequests.length + 1).toString(),
+        ...requestData,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        trackingNumber: `REQ-${Date.now()}`
+      };
 
-      if (!user) {
-        return res.status(401).json({ success: false, message: 'Invalid credentials' });
-      }
+      mediaRequests.push(newRequest);
 
-      res.json({ success: true, user: { id: user.id, username: user.username, role: user.role } });
+      res.status(201).json({
+        success: true,
+        message: 'Request submitted successfully',
+        trackingNumber: newRequest.trackingNumber,
+        request: newRequest
+      });
     } catch (error) {
-      console.error('Error logging in:', error);
+      console.error('Error submitting request:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
   } else {

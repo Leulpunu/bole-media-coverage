@@ -4,107 +4,78 @@ let users = [
   { id: '2', username: 'user', password: 'user123', role: 'user' }
 ];
 
-exports.handler = async (event, context) => {
+export default async function handler(req, res) {
   // Set CORS headers
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Content-Type': 'application/json'
-  };
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers,
-      body: ''
-    };
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
   }
 
-  if (event.httpMethod === 'GET') {
-    try {
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify(users.map(u => ({ id: u.id, username: u.username, role: u.role, createdAt: u.createdAt || new Date().toISOString() })))
-      };
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ success: false, message: 'Internal server error' })
-      };
-    }
-  } else if (event.httpMethod === 'POST') {
-    try {
-      const { username, password } = JSON.parse(event.body);
+  // Handle dynamic routes by checking the path
+  const pathParts = req.url.split('/').filter(part => part);
+  const isDynamicRoute = pathParts.length > 2 && pathParts[1] === 'users'; // /api/admin/users/:userId
+  const userId = isDynamicRoute ? pathParts[2] : null;
 
-      if (users.find(u => u.username === username)) {
-        return {
-          statusCode: 400,
-          headers,
-          body: JSON.stringify({ success: false, message: 'Username already exists' })
-        };
+  if (isDynamicRoute && userId) {
+    // Handle /api/admin/users/:userId routes
+    if (req.method === 'DELETE') {
+      try {
+        const userIndex = users.findIndex(u => u.id === userId);
+
+        if (userIndex === -1) {
+          return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        users.splice(userIndex, 1);
+
+        res.json({ success: true, message: 'User deleted successfully' });
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
       }
-
-      const newUser = {
-        id: (users.length + 1).toString(),
-        username,
-        password,
-        role: 'user',
-        createdAt: new Date().toISOString()
-      };
-
-      users.push(newUser);
-
-      return {
-        statusCode: 201,
-        headers,
-        body: JSON.stringify({ success: true, message: 'User created successfully' })
-      };
-    } catch (error) {
-      console.error('Error creating user:', error);
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ success: false, message: 'Internal server error' })
-      };
-    }
-  } else if (event.httpMethod === 'DELETE') {
-    try {
-      const userId = event.path.split('/').pop();
-
-      const userIndex = users.findIndex(u => u.id === userId);
-
-      if (userIndex === -1) {
-        return {
-          statusCode: 404,
-          headers,
-          body: JSON.stringify({ success: false, message: 'User not found' })
-        };
-      }
-
-      users.splice(userIndex, 1);
-
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ success: true, message: 'User deleted successfully' })
-      };
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ success: false, message: 'Internal server error' })
-      };
+    } else {
+      res.setHeader('Allow', ['DELETE']);
+      res.status(405).end(`Method ${req.method} Not Allowed`);
     }
   } else {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ message: `Method ${event.httpMethod} Not Allowed` })
-    };
+    // Handle /api/admin/users routes
+    if (req.method === 'GET') {
+      try {
+        res.json(users.map(u => ({ id: u.id, username: u.username, role: u.role, createdAt: u.createdAt || new Date().toISOString() })));
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+    } else if (req.method === 'POST') {
+      try {
+        const { username, password } = req.body;
+
+        if (users.find(u => u.username === username)) {
+          return res.status(400).json({ success: false, message: 'Username already exists' });
+        }
+
+        const newUser = {
+          id: (users.length + 1).toString(),
+          username,
+          password,
+          role: 'user',
+          createdAt: new Date().toISOString()
+        };
+
+        users.push(newUser);
+
+        res.status(201).json({ success: true, message: 'User created successfully' });
+      } catch (error) {
+        console.error('Error creating user:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+    } else {
+      res.setHeader('Allow', ['GET', 'POST']);
+      res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
   }
-};
+}
