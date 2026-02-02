@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider, useAuth } from './components/AuthContext';
 import { LanguageProvider } from './components/LanguageContext';
 import Header from './components/Header';
@@ -84,6 +85,7 @@ function App() {
           </Router>
         </LanguageProvider>
       </AuthProvider>
+      <Analytics />
     </ThemeProvider>
   );
 }
