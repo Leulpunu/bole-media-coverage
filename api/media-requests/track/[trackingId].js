@@ -1,13 +1,10 @@
-const { v4: uuidv4 } = require('uuid');
+const { findMediaRequestByTracking } = require('../utils/kv');
 
-// In-memory storage (in production, use a database)
-let mediaRequests = [];
-
-export default function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const { trackingId } = req.query;
-      const request = mediaRequests.find(req => req.trackingNumber === trackingId);
+      const request = await findMediaRequestByTracking(trackingId);
 
       if (!request) {
         return res.status(404).json({ success: false, message: 'Request not found' });

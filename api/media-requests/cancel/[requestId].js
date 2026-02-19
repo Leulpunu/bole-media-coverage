@@ -1,21 +1,24 @@
-// In-memory storage (in production, use a database)
-let mediaRequests = [];
+const { findMediaRequestById, updateMediaRequest } = require('../../utils/kv');
 
-export default function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method === 'PUT') {
     try {
       const { requestId } = req.query;
       const { reason } = req.body;
 
-      const requestIndex = mediaRequests.findIndex(req => req.id === requestId);
+      // Get from Vercel KV for persistent storage
+      const existingRequest = await findMediaRequestById(requestId);
 
-      if (requestIndex === -1) {
+      if (!existingRequest) {
         return res.status(404).json({ success: false, message: 'Request not found' });
       }
 
-      mediaRequests[requestIndex].status = 'cancelled';
-      mediaRequests[requestIndex].cancelReason = reason;
-      mediaRequests[requestIndex].cancelledAt = new Date().toISOString();
+      // Update the request status in KV
+      await updateMediaRequest(requestId, {
+        status: 'cancelled',
+        cancelReason: reason,
+        cancelledAt: new Date().toISOString()
+      });
 
       res.json({ success: true, message: 'Request cancelled successfully' });
     } catch (error) {
@@ -26,4 +29,4 @@ export default function handler(req, res) {
     res.setHeader('Allow', ['PUT']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-}
+};

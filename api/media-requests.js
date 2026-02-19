@@ -1,9 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
+const { addMediaRequest } = require('./utils/kv');
 
-// In-memory storage (in production, use a database)
-let mediaRequests = [];
-
-export default function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const requestData = req.body;
@@ -15,7 +13,8 @@ export default function handler(req, res) {
         trackingNumber: `REQ-${Date.now()}`
       };
 
-      mediaRequests.push(newRequest);
+      // Save to Vercel KV for persistent storage
+      await addMediaRequest(newRequest);
 
       res.status(201).json({
         success: true,

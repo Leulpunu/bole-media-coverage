@@ -1,10 +1,6 @@
-// In-memory storage (in production, use a database)
-let users = [
-  { id: '1', username: 'admin', password: 'admin123', role: 'admin' },
-  { id: '2', username: 'user', password: 'user123', role: 'user' }
-];
+const { findUserByUsername } = require('../utils/kv');
 
-module.exports = function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -19,9 +15,11 @@ module.exports = function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const { username, password } = req.body;
-      const user = users.find(u => u.username === username && u.password === password);
+      
+      // Use KV for persistent storage
+      const user = await findUserByUsername(username);
 
-      if (!user) {
+      if (!user || user.password !== password) {
         return res.status(401).json({ success: false, message: 'Invalid credentials' });
       }
 
@@ -34,4 +32,4 @@ module.exports = function handler(req, res) {
     res.setHeader('Allow', ['POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-}
+};

@@ -1,10 +1,6 @@
-// In-memory storage (in production, use a database)
-let users = [
-  { id: '1', username: 'admin', password: 'admin123', role: 'admin' },
-  { id: '2', username: 'user', password: 'user123', role: 'user' }
-];
+const { deleteUser } = require('../utils/kv');
 
-module.exports = function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -19,13 +15,13 @@ module.exports = function handler(req, res) {
   if (req.method === 'DELETE') {
     try {
       const { userId } = req.query;
-      const userIndex = users.findIndex(u => u.id === userId);
+      
+      // Use KV for persistent storage
+      const success = await deleteUser(userId);
 
-      if (userIndex === -1) {
+      if (!success) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
-
-      users.splice(userIndex, 1);
 
       res.json({ success: true, message: 'User deleted successfully' });
     } catch (error) {
@@ -36,4 +32,4 @@ module.exports = function handler(req, res) {
     res.setHeader('Allow', ['DELETE']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-}
+};
