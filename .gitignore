@@ -6,3 +6,6 @@ build/
 .DS_Store
 .cache/
 node_modules/.cache/
+...
+src/hooks/
+api/utils/
