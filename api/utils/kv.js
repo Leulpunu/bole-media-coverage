@@ -157,6 +157,15 @@ async function updateMediaRequest(requestId, updates) {
   return null;
 }
 
+async function getAllMediaRequests() {
+  const kv = await getKvClient();
+  if (kv) {
+    const requests = await kv.get('mediaRequests');
+    return requests || [];
+  }
+  return Array.from(memoryStore.mediaRequests.values());
+}
+
 module.exports = {
   getUsers,
   findUserByUsername,
@@ -165,5 +174,6 @@ module.exports = {
   addMediaRequest,
   findMediaRequestByTracking,
   findMediaRequestById,
-  updateMediaRequest
+  updateMediaRequest,
+  getAllMediaRequests
 };
