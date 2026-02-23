@@ -1,5 +1,7 @@
-// In-memory storage (in production, use a database)
-let mediaRequests = [];
+const { neon } = require('@neondatabase/serverless');
+
+// Get database connection
+const sql = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : null;
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -14,6 +16,10 @@ export default async function handler(req, res) {
 
   if (req.method === 'PUT') {
     try {
+      if (!sql) {
+        return res.status(503).json({ success: false, message: 'Database not configured' });
+      }
+
       // Extract requestId from query parameters
       const { requestId } = req.query;
       const { reason } = req.body;
@@ -22,15 +28,24 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, message: 'Request ID is required' });
       }
 
-      const requestIndex = mediaRequests.findIndex(req => req.id === requestId);
+      // Check if request exists
+      const existing = await sql`
+        SELECT * FROM media_requests WHERE id = ${requestId}
+      `;
 
-      if (requestIndex === -1) {
+      if (existing.length === 0) {
         return res.status(404).json({ success: false, message: 'Request not found' });
       }
 
-      mediaRequests[requestIndex].status = 'cancelled';
-      mediaRequests[requestIndex].cancelledAt = new Date().toISOString();
-      mediaRequests[requestIndex].cancelReason = reason;
+      // Update the request status
+      await sql`
+        UPDATE media_requests 
+        SET status = 'cancelled', 
+            cancel_reason = ${reason},
+            cancelled_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${requestId}
+      `;
 
       res.json({ success: true, message: 'Request cancelled successfully' });
     } catch (error) {

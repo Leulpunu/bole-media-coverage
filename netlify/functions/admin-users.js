@@ -1,8 +1,8 @@
-// In-memory storage (in production, use a database)
-let users = [
-  { id: '1', username: 'admin', password: 'admin123', role: 'admin' },
-  { id: '2', username: 'user', password: 'user123', role: 'user' }
-];
+const { v4: uuidv4 } = require('uuid');
+const { neon } = require('@neondatabase/serverless');
+
+// Get database connection
+const sql = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : null;
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -15,9 +15,21 @@ export default async function handler(req, res) {
     return;
   }
 
+  if (!sql) {
+    return res.status(503).json({ success: false, message: 'Database not configured' });
+  }
+
   if (req.method === 'GET') {
     try {
-      res.json(users.map(u => ({ id: u.id, username: u.username, role: u.role, createdAt: u.createdAt || new Date().toISOString() })));
+      const result = await sql`
+        SELECT id, username, role, created_at FROM users ORDER BY created_at DESC
+      `;
+      res.json(result.map(u => ({ 
+        id: u.id, 
+        username: u.username, 
+        role: u.role, 
+        createdAt: u.created_at 
+      })));
     } catch (error) {
       console.error('Error fetching users:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
@@ -26,19 +38,21 @@ export default async function handler(req, res) {
     try {
       const { username, password } = req.body;
 
-      if (users.find(u => u.username === username)) {
+      // Check if user already exists
+      const existing = await sql`
+        SELECT id FROM users WHERE username = ${username}
+      `;
+
+      if (existing.length > 0) {
         return res.status(400).json({ success: false, message: 'Username already exists' });
       }
 
-      const newUser = {
-        id: (users.length + 1).toString(),
-        username,
-        password,
-        role: 'user',
-        createdAt: new Date().toISOString()
-      };
-
-      users.push(newUser);
+      const id = uuidv4();
+      
+      await sql`
+        INSERT INTO users (id, username, password, role)
+        VALUES (${id}, ${username}, ${password}, 'user')
+      `;
 
       res.status(201).json({ success: true, message: 'User created successfully' });
     } catch (error) {

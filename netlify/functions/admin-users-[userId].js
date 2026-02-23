@@ -1,20 +1,34 @@
-// In-memory storage (in production, use a database)
-let users = [
-  { id: '1', username: 'admin', password: 'admin123', role: 'admin' },
-  { id: '2', username: 'user', password: 'user123', role: 'user' }
-];
+const { neon } = require('@neondatabase/serverless');
 
-export default function handler(req, res) {
+// Get database connection
+const sql = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : null;
+
+export default async function handler(req, res) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method === 'DELETE') {
     try {
-      const { userId } = req.query;
-      const userIndex = users.findIndex(u => u.id === userId);
-
-      if (userIndex === -1) {
-        return res.status(404).json({ success: false, message: 'User not found' });
+      if (!sql) {
+        return res.status(503).json({ success: false, message: 'Database not configured' });
       }
 
-      users.splice(userIndex, 1);
+      const { userId } = req.query;
+
+      const result = await sql`
+        DELETE FROM users WHERE id = ${userId} RETURNING id
+      `;
+
+      if (result.length === 0) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
 
       res.json({ success: true, message: 'User deleted successfully' });
     } catch (error) {

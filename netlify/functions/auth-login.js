@@ -1,8 +1,7 @@
-// In-memory storage (in production, use a database)
-let users = [
-  { id: '1', username: 'admin', password: 'admin123', role: 'admin' },
-  { id: '2', username: 'user', password: 'user123', role: 'user' }
-];
+const { neon } = require('@neondatabase/serverless');
+
+// Get database connection
+const sql = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : null;
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -17,13 +16,21 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
-      const { username, password } = req.body;
-      const user = users.find(u => u.username === username && u.password === password);
+      if (!sql) {
+        return res.status(503).json({ success: false, message: 'Database not configured' });
+      }
 
-      if (!user) {
+      const { username, password } = req.body;
+
+      const result = await sql`
+        SELECT id, username, role FROM users WHERE username = ${username} AND password = ${password}
+      `;
+
+      if (result.length === 0) {
         return res.status(401).json({ success: false, message: 'Invalid credentials' });
       }
 
+      const user = result[0];
       res.json({ success: true, user: { id: user.id, username: user.username, role: user.role } });
     } catch (error) {
       console.error('Error logging in:', error);

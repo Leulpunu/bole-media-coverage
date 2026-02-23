@@ -1,35 +1,60 @@
-# Migration: Redis (KV) → Neon PostgreSQL
+# Bole Media Coverage - Vercel Deployment Guide
 
-## Objective
+## Problem Solved
+The app works locally but data wasn't persisting on Vercel deployment because:
+- Vercel serverless functions have no persistent storage
+- Each function invocation starts fresh in-memory storage
 
-Migrate from Vercel KV (Redis) to Neon PostgreSQL using the Neon serverless driver
+## Solution Implemented
+Migrated from in-memory storage to Neon PostgreSQL database
 
-## Implementation Plan
+## Files Updated
 
-### Phase 1: Dependencies & Configuration
+### Core Database Layer
+- `api/utils/db.js` - Neon PostgreSQL database utilities (CommonJS compatible)
 
-- [x] 1. Add @neondatabase/serverless dependency to package.json
+### Vercel API Routes (in /api folder)
+- `api/media-requests.js` - Submit new requests (POST)
+- `api/media-requests/track/[trackingId].js` - Track requests (GET)
+- `api/media-requests/cancel/[requestId].js` - Cancel requests (PUT)
+- `api/admin/requests.js` - Admin: Get/Update all requests
+- `api/admin/users.js` - Admin: Get/Create users
+- `api/admin/users/[userId].js` - Admin: Delete users
+- `api/auth/login.js` - Authentication
 
-### Phase 2: Database Layer
+### Dependencies
+- Added `@neondatabase/serverless` to package.json
 
-- [x] 2. Create api/utils/db.js - Neon PostgreSQL database utility module
-- [x] 3. Create database schema/migrations
+## Deployment Steps
 
-### Phase 3: API Route Updates
+### 1. Set Environment Variables in Vercel Dashboard
+Go to your Vercel project Settings → Environment Variables and add:
 
-- [x] 4. api/media-requests.js - Updated to use PostgreSQL
-- [x] 5. api/media-requests/track/[trackingId].js - Updated to use PostgreSQL
-- [x] 6. api/media-requests/cancel/[requestId].js - Updated to use PostgreSQL
-- [x] 7. api/admin/requests.js - Updated to use PostgreSQL
-- [x] 8. api/admin/users.js - Updated to use PostgreSQL
-- [x] 9. api/admin/users/[userId].js - Updated to use PostgreSQL
-- [x] 10. api/auth/login.js - Updated to use PostgreSQL
+| Variable | Value |
+|----------|-------|
+| DATABASE_URL | Your Neon PostgreSQL connection string |
 
-### Phase 4: Backend Server Updates
+The connection string format:
+```
+postgresql://[user]:[password]@[host]/[database]?sslmode=require
+```
 
-- [x] 11. backend/package.json - Add @neondatabase/serverless dependency
-- [x] 12. backend/server.js - Update to use Neon PostgreSQL
+### 2. Deploy
+- Push changes to GitHub
+- Vercel will automatically deploy
 
-## Status
+### 3. Test
+- Submit a media request from the frontend
+- Check if it appears in admin panel
+- Data will now persist across deployments
 
-- [x] Migration Complete
+## Database Tables
+The following tables will be auto-created on first API call:
+- `users` - User accounts
+- `media_requests` - Media coverage requests
+
+## Default Admin Credentials
+- Username: `admin`
+- Password: `admin123`
+
+## Status: Ready for Vercel Deployment

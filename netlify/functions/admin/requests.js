@@ -1,7 +1,7 @@
-// In-memory storage (in production, use a database)
-// Note: This is a separate instance from media-requests.js
-// In production, you'd want to share the same database
-let adminMediaRequests = [];
+const { neon } = require('@neondatabase/serverless');
+
+// Get database connection
+const sql = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : null;
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -14,10 +14,17 @@ export default async function handler(req, res) {
     return;
   }
 
+  if (!sql) {
+    return res.status(503).json({ success: false, message: 'Database not configured' });
+  }
+
   try {
     if (req.method === 'GET') {
       // Return all media requests
-      res.status(200).json(adminMediaRequests);
+      const result = await sql`
+        SELECT * FROM media_requests ORDER BY created_at DESC
+      `;
+      res.status(200).json(result);
       return;
     }
 
@@ -30,45 +37,24 @@ export default async function handler(req, res) {
         return;
       }
 
-      const requestIndex = adminMediaRequests.findIndex(r => r.id === id);
-      
-      if (requestIndex === -1) {
+      const result = await sql`
+        UPDATE media_requests 
+        SET status = COALESCE(${status}, status),
+            admin_comments = COALESCE(${comments}, admin_comments),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${id}
+        RETURNING *
+      `;
+
+      if (result.length === 0) {
         res.status(404).json({ success: false, message: 'Request not found' });
         return;
       }
 
-      adminMediaRequests[requestIndex] = {
-        ...adminMediaRequests[requestIndex],
-        status: status || adminMediaRequests[requestIndex].status,
-        adminComments: comments || adminMediaRequests[requestIndex].adminComments,
-        updatedAt: new Date().toISOString()
-      };
-
       res.status(200).json({
         success: true,
         message: 'Request updated successfully',
-        request: adminMediaRequests[requestIndex]
-      });
-      return;
-    }
-
-    if (req.method === 'POST') {
-      // Create a new request (for testing purposes)
-      const requestData = req.body;
-      const newRequest = {
-        id: (adminMediaRequests.length + 1).toString(),
-        ...requestData,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        trackingNumber: `REQ-${Date.now()}`
-      };
-
-      adminMediaRequests.push(newRequest);
-
-      res.status(201).json({
-        success: true,
-        message: 'Request created successfully',
-        request: newRequest
+        request: result[0]
       });
       return;
     }
@@ -82,14 +68,14 @@ export default async function handler(req, res) {
         return;
       }
 
-      const requestIndex = adminMediaRequests.findIndex(r => r.id === id);
-      
-      if (requestIndex === -1) {
+      const result = await sql`
+        DELETE FROM media_requests WHERE id = ${id} RETURNING id
+      `;
+
+      if (result.length === 0) {
         res.status(404).json({ success: false, message: 'Request not found' });
         return;
       }
-
-      adminMediaRequests.splice(requestIndex, 1);
 
       res.status(200).json({
         success: true,
@@ -99,7 +85,7 @@ export default async function handler(req, res) {
     }
 
     // Method not allowed
-    res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
+    res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   } catch (error) {
     console.error('Error in admin/requests handler:', error);
