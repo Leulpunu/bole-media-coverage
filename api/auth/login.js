@@ -1,4 +1,4 @@
-const { findUserByUsername } = require('../utils/kv');
+const { findUserByUsername } = require('../utils/db');
 
 module.exports = async function handler(req, res) {
   // Set CORS headers

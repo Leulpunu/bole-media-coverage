@@ -1,26 +1,40 @@
 const { v4: uuidv4 } = require('uuid');
-const { addMediaRequest } = require('./utils/kv');
+const { addMediaRequest } = require('./utils/db');
 
 module.exports = async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const requestData = req.body;
+      const trackingId = `REQ-${Date.now()}-${uuidv4().slice(0, 8)}`;
+      
       const newRequest = {
         id: uuidv4(),
-        ...requestData,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        trackingNumber: `REQ-${Date.now()}`
+        trackingId: trackingId,
+        requesterName: requestData.requesterName,
+        organization: requestData.organization,
+        email: requestData.email,
+        phone: requestData.phone,
+        mediaType: requestData.mediaType,
+        coverageType: requestData.coverageType,
+        eventName: requestData.eventName,
+        eventDate: requestData.eventDate,
+        eventLocation: requestData.eventLocation,
+        description: requestData.description,
+        status: 'pending'
       };
 
-      // Save to Vercel KV for persistent storage
-      await addMediaRequest(newRequest);
+      // Save to PostgreSQL for persistent storage
+      const savedRequest = await addMediaRequest(newRequest);
+
+      if (!savedRequest) {
+        return res.status(500).json({ success: false, message: 'Failed to save request' });
+      }
 
       res.status(201).json({
         success: true,
         message: 'Request submitted successfully',
-        trackingNumber: newRequest.trackingNumber,
-        request: newRequest
+        trackingNumber: trackingId,
+        request: savedRequest
       });
     } catch (error) {
       console.error('Error submitting request:', error);

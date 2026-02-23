@@ -1,4 +1,4 @@
-const { findMediaRequestById, updateMediaRequest } = require('../../utils/kv');
+const { findMediaRequestById, updateMediaRequest } = require('../../utils/db');
 
 module.exports = async function handler(req, res) {
   if (req.method === 'PUT') {

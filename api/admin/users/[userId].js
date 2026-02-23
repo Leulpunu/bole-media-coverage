@@ -1,4 +1,4 @@
-const { deleteUser } = require('../utils/kv');
+const { deleteUser } = require('../utils/db');
 
 module.exports = async function handler(req, res) {
   // Set CORS headers

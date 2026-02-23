@@ -55,21 +55,47 @@ async function getUsers() {
 async function findUserByUsername(username) {
   const kv = await getKvClient();
   if (kv) {
-    const user = await kv.get(`user:${username}`);
+    // Try both formats for backward compatibility
+    let user = await kv.get(`user:${username}`);
+    if (!user) {
+      // Also check if stored with just username (legacy)
+      const allUsers = await kv.get('users') || [];
+      user = allUsers.find(u => u.username === username) || null;
+    }
     return user;
   }
-  return memoryStore.users.get(username) || null;
+  // For memory store, try both key formats
+  let user = memoryStore.users.get(username);
+  if (!user) {
+    // Check values for username match
+    for (const u of memoryStore.users.values()) {
+      if (u.username === username) {
+        user = u;
+        break;
+      }
+    }
+  }
+  return user || null;
 }
 
 async function addUser(user) {
   const kv = await getKvClient();
   if (kv) {
+    // Store with consistent key format
     await kv.set(`user:${user.username}`, user);
+    // Also update the users list
     const users = await kv.get('users') || [];
-    users.push(user);
+    // Check if user already exists in list
+    const existingIndex = users.findIndex(u => u.username === user.username);
+    if (existingIndex >= 0) {
+      users[existingIndex] = user;
+    } else {
+      users.push(user);
+    }
     await kv.set('users', users);
     return user;
   }
+  // Store in memory with username as key for backward compatibility
   memoryStore.users.set(user.username, user);
   return user;
 }

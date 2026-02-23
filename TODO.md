@@ -1,36 +1,35 @@
-# Fix Data Entry Path for Vercel Deployment
+# Migration: Redis (KV) → Neon PostgreSQL
 
-## Problem
-The application works locally but data doesn't save on Vercel because:
-1. API routes use in-memory storage (`let mediaRequests = []`)
-2. Vercel serverless functions are stateless - each invocation has fresh memory
-3. Data is saved but lost immediately
+## Objective
 
-## Solution
-Use Vercel KV (Redis) for persistent data storage
+Migrate from Vercel KV (Redis) to Neon PostgreSQL using the Neon serverless driver
 
 ## Implementation Plan
 
-### Step 1: Install Vercel KV SDK
-- Add `@vercel/kv` package to package.json
+### Phase 1: Dependencies & Configuration
 
-### Step 2: Update API Routes to use Vercel KV
-- [ ] api/media-requests.js - Main endpoint for submitting requests
-- [ ] api/media-requests/track/[trackingId].js - Track request by tracking ID
-- [ ] api/media-requests/cancel/[requestId].js - Cancel request
-- [ ] api/admin/users.js - Admin user management
-- [ ] api/auth/login.js - Authentication
+- [x] 1. Add @neondatabase/serverless dependency to package.json
 
-### Step 3: Fix vercel.json Configuration
-- Ensure proper routing to API functions
+### Phase 2: Database Layer
 
-### Step 4: Test locally with Vercel CLI
-- Use `vercel dev` to test the changes
+- [x] 2. Create api/utils/db.js - Neon PostgreSQL database utility module
+- [x] 3. Create database schema/migrations
 
-## Files to Modify
-1. package.json - Add @vercel/kv dependency
-2. api/media-requests.js - Use KV for storage
-3. api/media-requests/track/[trackingId].js - Use KV for lookup
-4. api/media-requests/cancel/[requestId].js - Use KV for cancellation
-5. api/admin/users.js - Use KV for user storage
-6. vercel.json - Fix routing configuration
+### Phase 3: API Route Updates
+
+- [x] 4. api/media-requests.js - Updated to use PostgreSQL
+- [x] 5. api/media-requests/track/[trackingId].js - Updated to use PostgreSQL
+- [x] 6. api/media-requests/cancel/[requestId].js - Updated to use PostgreSQL
+- [x] 7. api/admin/requests.js - Updated to use PostgreSQL
+- [x] 8. api/admin/users.js - Updated to use PostgreSQL
+- [x] 9. api/admin/users/[userId].js - Updated to use PostgreSQL
+- [x] 10. api/auth/login.js - Updated to use PostgreSQL
+
+### Phase 4: Backend Server Updates
+
+- [x] 11. backend/package.json - Add @neondatabase/serverless dependency
+- [x] 12. backend/server.js - Update to use Neon PostgreSQL
+
+## Status
+
+- [x] Migration Complete

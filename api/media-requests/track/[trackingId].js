@@ -1,4 +1,4 @@
-const { findMediaRequestByTracking } = require('../utils/kv');
+const { findMediaRequestByTracking } = require('../../utils/db');
 
 module.exports = async function handler(req, res) {
   if (req.method === 'GET') {

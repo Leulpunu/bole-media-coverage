@@ -1,7 +1,7 @@
 // Admin API endpoint for managing media requests
 // This handles GET (fetch all requests) and PUT (update request status)
 
-const { getAllMediaRequests, updateMediaRequest } = require('../utils/kv');
+const { getAllMediaRequests, updateMediaRequest } = require('../utils/db');
 
 export default async function handler(req, res) {
   // Set CORS headers

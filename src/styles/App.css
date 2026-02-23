@@ -119,14 +119,7 @@ footer p {
   }
 }
 
-/* Amharic font support */
-@font-face {
-  font-family: 'Noto Sans Ethiopic';
-  font-style: normal;
-  font-weight: 400;
-  src: url(https://fonts.gstatic.com/s/notosansethiopic/v28/7Auh4_Eq3-76KlbY1Oj8CZj_7x-acvylB3c.ttf) format('truetype');
-}
-
+/* Amharic font support - using system fonts as fallback */
 .amharic-text {
-  font-family: 'Noto Sans Ethiopic', sans-serif;
+  font-family: 'Noto Sans Ethiopic', 'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', sans-serif;
 }

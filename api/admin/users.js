@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { getUsers, findUserByUsername, addUser } = require('../utils/kv');
+const { getUsers, findUserByUsername, addUser } = require('../utils/db');
 
 module.exports = async function handler(req, res) {
   // Set CORS headers
