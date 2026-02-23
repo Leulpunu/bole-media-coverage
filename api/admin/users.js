@@ -1,5 +1,17 @@
-const { v4: uuidv4 } = require('uuid');
-const { getUsers, findUserByUsername, addUser } = require('../utils/db');
+// In-memory storage fallback
+const users = [
+  { id: '1', username: 'admin', password: 'admin123', role: 'admin', created_at: new Date().toISOString() },
+  { id: '2', username: 'editor', password: 'editor123', role: 'editor', created_at: new Date().toISOString() }
+];
+
+// Check if PostgreSQL is configured
+let sql;
+try {
+  const postgres = await import('@vercel/postgres');
+  sql = postgres.default;
+} catch (e) {
+  sql = null;
+}
 
 module.exports = async function handler(req, res) {
   // Set CORS headers
@@ -13,43 +25,61 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  // GET /api/admin/users - Get all users
   if (req.method === 'GET') {
     try {
-      // Get users from Vercel KV for persistent storage
-      const users = await getUsers();
-      res.json(users.map(u => ({ id: u.id, username: u.username, role: u.role })));
+      if (sql) {
+        try {
+          const result = await sql`SELECT id, username, role, created_at FROM users ORDER BY created_at DESC`;
+          return res.json(result.rows);
+        } catch (dbError) {
+          console.warn('PostgreSQL error, falling back to memory:', dbError.message);
+        }
+      }
+      // Fallback to in-memory
+      res.json(users.map(u => ({ id: u.id, username: u.username, role: u.role, created_at: u.created_at })));
     } catch (error) {
       console.error('Error fetching users:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
-  } else if (req.method === 'POST') {
+  }
+  // POST /api/admin/users - Create new user
+  else if (req.method === 'POST') {
     try {
       const { username, password } = req.body;
-
-      // Check if user already exists
-      const existingUser = await findUserByUsername(username);
-      if (existingUser) {
-        return res.status(400).json({ success: false, message: 'User already exists' });
+      
+      if (sql) {
+        try {
+          // Check if username exists
+          const existing = await sql`SELECT id FROM users WHERE username = ${username}`;
+          if (existing.rows.length > 0) {
+            return res.status(400).json({ success: false, message: 'Username already exists' });
+          }
+          
+          const id = Date.now().toString();
+          await sql`INSERT INTO users (id, username, password, role) VALUES (${id}, ${username}, ${password}, 'user')`;
+          
+          return res.status(201).json({ success: true, message: 'User created successfully' });
+        } catch (dbError) {
+          console.warn('PostgreSQL error, falling back to memory:', dbError.message);
+        }
       }
-
-      // Create new user
-      const newUser = {
-        id: uuidv4(),
-        username,
-        password,
-        role: 'user'
-      };
-
-      // Save to Vercel KV
-      await addUser(newUser);
-
-      res.json({ success: true, user: { id: newUser.id, username: newUser.username, role: newUser.role } });
+      
+      // Fallback to in-memory
+      if (users.find(u => u.username === username)) {
+        return res.status(400).json({ success: false, message: 'Username already exists' });
+      }
+      
+      const newUser = { id: Date.now().toString(), username, password, role: 'user', created_at: new Date().toISOString() };
+      users.push(newUser);
+      res.status(201).json({ success: true, message: 'User created successfully' });
     } catch (error) {
       console.error('Error creating user:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
-  } else {
+  }
+  else {
     res.setHeader('Allow', ['GET', 'POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-}
+};

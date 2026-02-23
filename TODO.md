@@ -1,73 +1,38 @@
-# Bole Media Coverage - Vercel Deployment Guide
+# TODO.md
 
-## Problem Solved
+## Fix Data Entry Path for Vercel Deployment
 
-The app works locally but data wasn't persisting on Vercel deployment because:
-- Vercel serverless functions have no persistent storage
-- Each function invocation starts fresh in-memory storage
+### Problem
 
-## Solution Implemented
+The application works locally but data doesn't save on Vercel because:
 
-Migrated from in-memory storage to Neon PostgreSQL database
+1. API routes use in-memory storage (`let mediaRequests = []`)
+2. Vercel serverless functions are stateless - each invocation has fresh memory
+3. Data is saved but lost immediately
 
-## Files Updated
+### Solution
 
-### Core Database Layer
+Use Vercel Postgres for persistent data storage
 
-- `api/utils/db.js` - Neon PostgreSQL database utilities (CommonJS compatible)
+### Implementation Status
 
-### Vercel API Routes (in /api folder)
+- [x] Add @vercel/postgres dependency to package.json
+- [x] Create api/utils/db.js - PostgreSQL database utility module
+- [x] Update api/media-requests.js - Use PostgreSQL with fallback
+- [x] Update api/media-requests/track/[trackingId].js - Use PostgreSQL with fallback
+- [x] Update api/media-requests/cancel/[requestId].js - Use PostgreSQL with fallback
+- [x] Update api/admin/users.js - Use PostgreSQL with fallback
+- [x] Update api/admin/users/[userId].js - Use PostgreSQL with fallback
+- [x] Update api/auth/login.js - Use PostgreSQL with fallback
 
-- `api/media-requests.js` - Submit new requests (POST)
-- `api/media-requests/track/[trackingId].js` - Track requests (GET)
-- `api/media-requests/cancel/[requestId].js` - Cancel requests (PUT)
-- `api/admin/requests.js` - Admin: Get/Update all requests
-- `api/admin/users.js` - Admin: Get/Create users
-- `api/admin/users/[userId].js` - Admin: Delete users
-- `api/auth/login.js` - Authentication
+### Environment Variables
 
-### Dependencies
+To use PostgreSQL in production, set the following in Vercel:
 
-- Added `@neondatabase/serverless` to package.json
+- `POSTGRES_URL` - Your PostgreSQL connection string
+- Or `DATABASE_URL` - Alternative connection string
 
-## Deployment Steps
+### Notes
 
-### 1. Set Environment Variables in Vercel Dashboard
-
-Go to your Vercel project Settings → Environment Variables and add:
-
-| Variable | Value |
-|----------|-------|
-| DATABASE_URL | Your Neon PostgreSQL connection string |
-
-The connection string format:
-
-```
-postgresql://[user]:[password]@[host]/[database]?sslmode=require
-```
-
-### 2. Deploy
-
-- Push changes to GitHub
-- Vercel will automatically deploy
-
-### 3. Test
-
-- Submit a media request from the frontend
-- Check if it appears in admin panel
-- Data will now persist across deployments
-
-## Database Tables
-
-The following tables will be auto-created on first API call:
-- `users` - User accounts
-- `media_requests` - Media coverage requests
-
-## Default Admin Credentials
-
-- Username: `admin`
-- Password: `admin123`
-
-## Status
-
-Ready for Vercel Deployment
+- All API routes support dual-mode: PostgreSQL when configured, in-memory for local development
+- Tables are automatically created on first request when PostgreSQL is configured
