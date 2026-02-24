@@ -2,9 +2,15 @@
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "build",
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/api/auth/login", "destination": "/api/auth/login.js" },
+    { "source": "/api/admin/requests", "destination": "/api/admin/requests.js" },
+    { "source": "/api/admin/update-status", "destination": "/api/admin/requests.js" },
+    { "source": "/api/admin/users", "destination": "/api/admin/users.js" },
+    { "source": "/api/media-requests", "destination": "/api/media-requests.js" },
+    { "source": "/api/media-requests/track/:id", "destination": "/api/media-requests/track.js" },
+    { "source": "/api/media-requests/cancel/:id", "destination": "/api/media-requests/cancel.js" },
+    { "source": "/api/admin/users/:id", "destination": "/api/admin/users.js" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
