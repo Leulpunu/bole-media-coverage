@@ -4,7 +4,7 @@ This project uses Neon (a serverless PostgreSQL) for data storage. Follow these 
 
 ## Step 1: Create a Neon Database
 
-1. Go to [Neon Console](https://console.neon.tech/) 
+1. Go to [Neon Console](https://console.neon.tech/)
 2. Sign up or log in with your GitHub account
 3. Click "Create a project"
 4. Give your project a name (e.g., "bole-media-coverage")
@@ -14,8 +14,7 @@ This project uses Neon (a serverless PostgreSQL) for data storage. Follow these 
 
 In the Neon SQL Editor, run the following SQL:
 
-```
-sql
+```sql
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id VARCHAR(255) PRIMARY KEY,
@@ -57,6 +56,7 @@ INSERT INTO users (id, username, password, role) VALUES ('2', 'editor', 'editor1
 ### For Local Development
 
 1. Create a `.env` file in the project root:
+
 ```
 DATABASE_URL=postgres://your-username:your-password@ep-xxx.us-east-1.aws.neon.tech/bole-media-coverage?sslmode=require
 ```
@@ -73,10 +73,12 @@ DATABASE_URL=postgres://your-username:your-password@ep-xxx.us-east-1.aws.neon.te
 ## Step 4: Test the Connection
 
 The app will automatically:
+
 1. Try to connect to the Neon database using `DATABASE_URL`
 2. Fall back to in-memory storage if no database is configured
 
 You can verify by checking the server console logs:
+
 - "Neon database connected successfully" = Connected
 - "DATABASE_URL not set, using in-memory storage" = Using fallback
 
