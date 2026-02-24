@@ -4,13 +4,26 @@ const users = [
   { id: '2', username: 'editor', password: 'editor123', role: 'editor', created_at: new Date().toISOString() }
 ];
 
-// Check if PostgreSQL is configured
-let sql;
-try {
-  const postgres = await import('@vercel/postgres');
-  sql = postgres.default;
-} catch (e) {
-  sql = null;
+// Lazy-load PostgreSQL client
+let sql = null;
+async function getSql() {
+  if (sql !== null) return sql;
+  
+  try {
+    // Check if POSTGRES_URL is configured
+    if (!process.env.POSTGRES_URL && !process.env.DATABASE_URL) {
+      console.log('PostgreSQL not configured, using in-memory storage');
+      return null;
+    }
+    
+    const postgres = await import('@vercel/postgres');
+    sql = postgres.default;
+    return sql;
+  } catch (e) {
+    console.warn('Failed to load PostgreSQL:', e.message);
+    sql = null;
+    return null;
+  }
 }
 
 module.exports = async function handler(req, res) {
@@ -29,10 +42,15 @@ module.exports = async function handler(req, res) {
     try {
       const { username, password } = req.body;
       
+      if (!username || !password) {
+        return res.status(400).json({ success: false, message: 'Username and password required' });
+      }
+      
       // Try PostgreSQL first, fallback to in-memory
-      if (sql) {
+      const db = await getSql();
+      if (db) {
         try {
-          const result = await sql`SELECT * FROM users WHERE username = ${username} AND password = ${password}`;
+          const result = await db`SELECT * FROM users WHERE username = ${username} AND password = ${password}`;
           
           if (result.rows.length === 0) {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });

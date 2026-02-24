@@ -4,13 +4,23 @@ const users = [
   { id: '2', username: 'editor', password: 'editor123', role: 'editor', created_at: new Date().toISOString() }
 ];
 
-// Check if PostgreSQL is configured
-let sql;
-try {
-  const postgres = await import('@vercel/postgres');
-  sql = postgres.default;
-} catch (e) {
-  sql = null;
+// Lazy-load PostgreSQL client
+let sql = null;
+async function getSql() {
+  if (sql !== null) return sql;
+  
+  try {
+    if (!process.env.POSTGRES_URL && !process.env.DATABASE_URL) {
+      return null;
+    }
+    
+    const postgres = await import('@vercel/postgres');
+    sql = postgres.default;
+    return sql;
+  } catch (e) {
+    sql = null;
+    return null;
+  }
 }
 
 module.exports = async function handler(req, res) {
@@ -28,9 +38,10 @@ module.exports = async function handler(req, res) {
   // GET /api/admin/users - Get all users
   if (req.method === 'GET') {
     try {
-      if (sql) {
+      const db = await getSql();
+      if (db) {
         try {
-          const result = await sql`SELECT id, username, role, created_at FROM users ORDER BY created_at DESC`;
+          const result = await db`SELECT id, username, role, created_at FROM users ORDER BY created_at DESC`;
           return res.json(result.rows);
         } catch (dbError) {
           console.warn('PostgreSQL error, falling back to memory:', dbError.message);
@@ -48,16 +59,17 @@ module.exports = async function handler(req, res) {
     try {
       const { username, password } = req.body;
       
-      if (sql) {
+      const db = await getSql();
+      if (db) {
         try {
           // Check if username exists
-          const existing = await sql`SELECT id FROM users WHERE username = ${username}`;
+          const existing = await db`SELECT id FROM users WHERE username = ${username}`;
           if (existing.rows.length > 0) {
             return res.status(400).json({ success: false, message: 'Username already exists' });
           }
           
           const id = Date.now().toString();
-          await sql`INSERT INTO users (id, username, password, role) VALUES (${id}, ${username}, ${password}, 'user')`;
+          await db`INSERT INTO users (id, username, password, role) VALUES (${id}, ${username}, ${password}, 'user')`;
           
           return res.status(201).json({ success: true, message: 'User created successfully' });
         } catch (dbError) {

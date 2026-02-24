@@ -1,13 +1,23 @@
 // In-memory storage fallback
 const mediaRequests = [];
 
-// Check if PostgreSQL is configured
-let sql;
-try {
-  const postgres = await import('@vercel/postgres');
-  sql = postgres.default;
-} catch (e) {
-  sql = null;
+// Lazy-load PostgreSQL client
+let sql = null;
+async function getSql() {
+  if (sql !== null) return sql;
+  
+  try {
+    if (!process.env.POSTGRES_URL && !process.env.DATABASE_URL) {
+      return null;
+    }
+    
+    const postgres = await import('@vercel/postgres');
+    sql = postgres.default;
+    return sql;
+  } catch (e) {
+    sql = null;
+    return null;
+  }
 }
 
 module.exports = async function handler(req, res) {
@@ -25,9 +35,10 @@ module.exports = async function handler(req, res) {
   // GET /api/admin/requests - Get all requests
   if (req.method === 'GET') {
     try {
-      if (sql) {
+      const db = await getSql();
+      if (db) {
         try {
-          const result = await sql`SELECT * FROM media_requests ORDER BY created_at DESC`;
+          const result = await db`SELECT * FROM media_requests ORDER BY created_at DESC`;
           return res.json(result.rows);
         } catch (dbError) {
           console.warn('PostgreSQL error, falling back to memory:', dbError.message);
@@ -47,9 +58,10 @@ module.exports = async function handler(req, res) {
       const requestId = req.params.requestId;
       const { status, comments } = req.body;
       
-      if (sql) {
+      const db = await getSql();
+      if (db) {
         try {
-          const result = await sql`
+          const result = await db`
             UPDATE media_requests 
             SET status = ${status}, admin_comments = ${comments}, updated_at = CURRENT_TIMESTAMP 
             WHERE id = ${requestId} 

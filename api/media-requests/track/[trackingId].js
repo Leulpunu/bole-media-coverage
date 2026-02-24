@@ -1,13 +1,23 @@
 // In-memory storage fallback
 const mediaRequests = [];
 
-// Check if PostgreSQL is configured
-let sql;
-try {
-  const postgres = await import('@vercel/postgres');
-  sql = postgres.default;
-} catch (e) {
-  sql = null;
+// Lazy-load PostgreSQL client
+let sql = null;
+async function getSql() {
+  if (sql !== null) return sql;
+  
+  try {
+    if (!process.env.POSTGRES_URL && !process.env.DATABASE_URL) {
+      return null;
+    }
+    
+    const postgres = await import('@vercel/postgres');
+    sql = postgres.default;
+    return sql;
+  } catch (e) {
+    sql = null;
+    return null;
+  }
 }
 
 module.exports = async function handler(req, res) {
@@ -28,9 +38,10 @@ module.exports = async function handler(req, res) {
   // GET /api/media-requests/track/:trackingId - Track request
   if (req.method === 'GET') {
     try {
-      if (sql) {
+      const db = await getSql();
+      if (db) {
         try {
-          const result = await sql`SELECT * FROM media_requests WHERE tracking_id = ${trackingId}`;
+          const result = await db`SELECT * FROM media_requests WHERE tracking_id = ${trackingId}`;
           if (result.rows.length === 0) {
             return res.status(404).json({ success: false, message: 'Request not found' });
           }

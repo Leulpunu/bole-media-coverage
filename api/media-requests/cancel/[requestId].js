@@ -1,13 +1,23 @@
 // In-memory storage fallback
 const mediaRequests = [];
 
-// Check if PostgreSQL is configured
-let sql;
-try {
-  const postgres = await import('@vercel/postgres');
-  sql = postgres.default;
-} catch (e) {
-  sql = null;
+// Lazy-load PostgreSQL client
+let sql = null;
+async function getSql() {
+  if (sql !== null) return sql;
+  
+  try {
+    if (!process.env.POSTGRES_URL && !process.env.DATABASE_URL) {
+      return null;
+    }
+    
+    const postgres = await import('@vercel/postgres');
+    sql = postgres.default;
+    return sql;
+  } catch (e) {
+    sql = null;
+    return null;
+  }
 }
 
 module.exports = async function handler(req, res) {
@@ -30,9 +40,10 @@ module.exports = async function handler(req, res) {
     try {
       const { reason } = req.body;
       
-      if (sql) {
+      const db = await getSql();
+      if (db) {
         try {
-          const result = await sql`
+          const result = await db`
             UPDATE media_requests 
             SET status = 'cancelled', cancel_reason = ${reason}, cancelled_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP 
             WHERE id = ${requestId} 

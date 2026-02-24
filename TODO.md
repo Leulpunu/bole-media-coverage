@@ -1,38 +1,48 @@
-# TODO.md
+# Migration: Redis (KV) → PostgreSQL
 
-## Fix Data Entry Path for Vercel Deployment
+## Objective
 
-### Problem
+Migrate from Vercel KV (Redis) to PostgreSQL using Vercel Postgres credentials
 
-The application works locally but data doesn't save on Vercel because:
+## Implementation Plan
 
-1. API routes use in-memory storage (`let mediaRequests = []`)
-2. Vercel serverless functions are stateless - each invocation has fresh memory
-3. Data is saved but lost immediately
+### Phase 1: Dependencies & Configuration
 
-### Solution
+- [x] 1. Add @vercel/postgres dependency to package.json
 
-Use Vercel Postgres for persistent data storage
+### Phase 2: Database Layer
 
-### Implementation Status
+- [x] 2. Create api/utils/db.js - PostgreSQL database utility module (auto-creates tables)
 
-- [x] Add @vercel/postgres dependency to package.json
-- [x] Create api/utils/db.js - PostgreSQL database utility module
-- [x] Update api/media-requests.js - Use PostgreSQL with fallback
-- [x] Update api/media-requests/track/[trackingId].js - Use PostgreSQL with fallback
-- [x] Update api/media-requests/cancel/[requestId].js - Use PostgreSQL with fallback
-- [x] Update api/admin/users.js - Use PostgreSQL with fallback
-- [x] Update api/admin/users/[userId].js - Use PostgreSQL with fallback
-- [x] Update api/auth/login.js - Use PostgreSQL with fallback
+### Phase 3: API Route Updates
 
-### Environment Variables
+- [x] 3. api/media-requests.js - Update to use PostgreSQL (lazy-load pattern)
+- [x] 4. api/media-requests/track/[trackingId].js - Update to use PostgreSQL
+- [x] 5. api/media-requests/cancel/[requestId].js - Update to use PostgreSQL
+- [x] 6. api/admin/requests.js - Update to use PostgreSQL
+- [x] 7. api/admin/users.js - Update to use PostgreSQL
+- [x] 8. api/admin/users/[userId].js - Update to use PostgreSQL
+- [x] 9. api/auth/login.js - Already uses lazy-load pattern
 
-To use PostgreSQL in production, set the following in Vercel:
+### Phase 4: Backend Server Updates (Optional)
 
-- `POSTGRES_URL` - Your PostgreSQL connection string
-- Or `DATABASE_URL` - Alternative connection string
+- [ ] 10. backend/package.json - Add pg dependency
+- [ ] 11. backend/server.js - Update to use PostgreSQL
 
-### Notes
+## Configuration Required
 
-- All API routes support dual-mode: PostgreSQL when configured, in-memory for local development
-- Tables are automatically created on first request when PostgreSQL is configured
+Set these environment variables in Vercel:
+
+- `POSTGRES_URL` - Primary connection string (recommended)
+- Or use `DATABASE_URL` - Alternative
+
+## Status
+
+- [x] Migration Complete - API routes updated, awaiting deployment
+
+## Notes
+
+- All API routes now use lazy-loading PostgreSQL client pattern
+- Falls back to in-memory storage if PostgreSQL is not configured
+- Default users (admin/admin123, editor/editor123) are created on first use
+- Database tables are auto-created by api/utils/db.js on first connection
