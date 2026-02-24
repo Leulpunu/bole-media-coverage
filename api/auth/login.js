@@ -4,23 +4,29 @@ const users = [
   { id: '2', username: 'editor', password: 'editor123', role: 'editor', created_at: new Date().toISOString() }
 ];
 
-// Lazy-load PostgreSQL client
+// Lazy-load Neon database client
 let sql = null;
 async function getSql() {
   if (sql !== null) return sql;
   
+  const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  
+  if (!databaseUrl) {
+    console.log('DATABASE_URL not set, using in-memory storage');
+    return null;
+  }
+  
   try {
-    // Check if POSTGRES_URL is configured
-    if (!process.env.POSTGRES_URL && !process.env.DATABASE_URL) {
-      console.log('PostgreSQL not configured, using in-memory storage');
-      return null;
-    }
+    const { neon } = await import('@neondatabase/serverless');
+    sql = neon(databaseUrl);
     
-    const postgres = await import('@vercel/postgres');
-    sql = postgres.default;
+    // Test the connection
+    await sql`SELECT 1`;
+    console.log('Neon database connected successfully');
+    
     return sql;
   } catch (e) {
-    console.warn('Failed to load PostgreSQL:', e.message);
+    console.warn('Failed to connect to Neon database:', e.message);
     sql = null;
     return null;
   }
@@ -46,20 +52,20 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ success: false, message: 'Username and password required' });
       }
       
-      // Try PostgreSQL first, fallback to in-memory
+      // Try Neon database first, fallback to in-memory
       const db = await getSql();
       if (db) {
         try {
           const result = await db`SELECT * FROM users WHERE username = ${username} AND password = ${password}`;
           
-          if (result.rows.length === 0) {
+          if (result.length === 0) {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
           }
 
-          const user = result.rows[0];
+          const user = result[0];
           return res.json({ success: true, user: { id: user.id, username: user.username, role: user.role } });
         } catch (dbError) {
-          console.warn('PostgreSQL error, falling back to memory:', dbError.message);
+          console.warn('Database error, falling back to memory:', dbError.message);
         }
       }
       

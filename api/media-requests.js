@@ -1,20 +1,29 @@
 // In-memory storage fallback
 const mediaRequests = [];
 
-// Lazy-load PostgreSQL client
+// Lazy-load Neon database client
 let sql = null;
 async function getSql() {
   if (sql !== null) return sql;
   
+  const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  
+  if (!databaseUrl) {
+    console.log('DATABASE_URL not set, using in-memory storage');
+    return null;
+  }
+  
   try {
-    if (!process.env.POSTGRES_URL && !process.env.DATABASE_URL) {
-      return null;
-    }
+    const { neon } = await import('@neondatabase/serverless');
+    sql = neon(databaseUrl);
     
-    const postgres = await import('@vercel/postgres');
-    sql = postgres.default;
+    // Test the connection
+    await sql`SELECT 1`;
+    console.log('Neon database connected successfully');
+    
     return sql;
   } catch (e) {
+    console.warn('Failed to connect to Neon database:', e.message);
     sql = null;
     return null;
   }
@@ -68,7 +77,7 @@ module.exports = async function handler(req, res) {
             }
           });
         } catch (dbError) {
-          console.warn('PostgreSQL error, falling back to memory:', dbError.message);
+          console.warn('Database error, falling back to memory:', dbError.message);
         }
       }
       

@@ -1,102 +1,86 @@
-# Database Setup Guide for Bole Media Coverage
+# Database Setup Guide
 
-## Quick Start (Without Database - Already Working!)
+This project uses Neon (a serverless PostgreSQL) for data storage. Follow these steps to set up your database:
 
-The application now works without a database using in-memory storage. You can login with:
+## Step 1: Create a Neon Database
 
-- **Admin:** username: `admin`, password: `admin123`
-- **Editor:** username: `editor`, password: `editor123`
+1. Go to [Neon Console](https://console.neon.tech/) 
+2. Sign up or log in with your GitHub account
+3. Click "Create a project"
+4. Give your project a name (e.g., "bole-media-coverage")
+5. Copy the connection string (it looks like: `postgres://user:password@ep-xxx.us-east-1.aws.neon.tech/bole-media-coverage`)
 
----
+## Step 2: Create Database Tables
 
-## Setting Up a Database (Optional but Recommended)
+In the Neon SQL Editor, run the following SQL:
 
-If you want persistent data storage, follow these steps:
+```
+sql
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+  id VARCHAR(255) PRIMARY KEY,
+  username VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  role VARCHAR(50) DEFAULT 'user',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-### Option 1: Vercel Postgres (Recommended)
+-- Media requests table
+CREATE TABLE IF NOT EXISTS media_requests (
+  id VARCHAR(255) PRIMARY KEY,
+  tracking_id VARCHAR(255) UNIQUE NOT NULL,
+  requester_name VARCHAR(255),
+  organization VARCHAR(255),
+  email VARCHAR(255),
+  phone VARCHAR(50),
+  media_type VARCHAR(50),
+  coverage_type VARCHAR(100),
+  event_name VARCHAR(255),
+  event_date DATE,
+  event_location VARCHAR(255),
+  description TEXT,
+  status VARCHAR(50) DEFAULT 'pending',
+  admin_comments TEXT,
+  cancel_reason TEXT,
+  cancelled_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-1. **Go to Vercel Dashboard**
+-- Insert default users
+INSERT INTO users (id, username, password, role) VALUES ('1', 'admin', 'admin123', 'admin') ON CONFLICT (username) DO NOTHING;
+INSERT INTO users (id, username, password, role) VALUES ('2', 'editor', 'editor123', 'editor') ON CONFLICT (username) DO NOTHING;
+```
 
-   Visit [https://vercel.com](https://vercel.com) and go to your project.
+## Step 3: Configure Environment Variables
 
-2. **Create a Database**
+### For Local Development
 
-   - Click on **Storage** tab in the sidebar
-   - Click **Create Database** → **Vercel Postgres**
-   - Choose a region (closest to your users)
-   - Click **Create**
+1. Create a `.env` file in the project root:
+```
+DATABASE_URL=postgres://your-username:your-password@ep-xxx.us-east-1.aws.neon.tech/bole-media-coverage?sslmode=require
+```
 
-3. **Done!**
+### For Vercel Deployment
 
-   Vercel automatically adds `DATABASE_URL` environment variable. Your app will automatically connect on next deployment.
+1. Go to your Vercel dashboard
+2. Select your project
+3. Go to Settings → Environment Variables
+4. Add a new variable:
+   - Name: `DATABASE_URL`
+   - Value: Your Neon connection string
 
----
+## Step 4: Test the Connection
 
-### Option 2: Neon (Free PostgreSQL)
+The app will automatically:
+1. Try to connect to the Neon database using `DATABASE_URL`
+2. Fall back to in-memory storage if no database is configured
 
-1. **Create Neon Account**
+You can verify by checking the server console logs:
+- "Neon database connected successfully" = Connected
+- "DATABASE_URL not set, using in-memory storage" = Using fallback
 
-   Go to [https://neon.tech](https://neon.tech) and sign up with your GitHub account. Click **New Project**.
+## Default Login Credentials
 
-2. **Configure Project**
-
-   - Name: `bole-media` (or any name)
-   - Select a region closest to your users
-   - Click **Create Project**
-
-3. **Get Connection String**
-
-   - Once created, click **Connection Details**
-   - Copy the **Connection string** (looks like: `postgres://user:password@host.neon.tech/dbname?sslmode=require`)
-
-4. **Add to Vercel**
-
-   - Go to Vercel → Your Project → Settings → Environment Variables
-   - Add new variable:
-     - Name: `DATABASE_URL`
-     - Value: (paste your Neon connection string)
-   - Click **Save**
-
-5. **Deploy**
-
-   Redeploy your project for the changes to take effect.
-
----
-
-## Verifying Database Connection
-
-After setting up:
-
-1. Check Vercel function logs at <https://vercel.com> → Your Project → Functions → Functions Logs
-
-2. You should see: "Database connected and initialized"
-
-3. Login will now use the database instead of in-memory storage
-
----
-
-## Default Users
-
-After database setup, these users are automatically created:
-
-- **Admin:** username: `admin`, password: `admin123`, role: `admin`
-- **Editor:** username: `editor`, password: `editor123`, role: `editor`
-
----
-
-## Troubleshooting
-
-### "Database not configured" error
-
-- Make sure `DATABASE_URL` is set in Vercel environment variables
-- Redeploy after adding the variable
-
-### "Connection refused" error
-
-- Check that your Neon project is active (not paused)
-- Verify the connection string is correct
-
-### Data not persisting
-
-- Make sure you're using a database (not in-memory fallback)
-- Check Vercel function logs for errors
+- **Admin**: username: `admin`, password: `admin123`
+- **Editor**: username: `editor`, password: `editor123`
