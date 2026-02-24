@@ -78,7 +78,9 @@ const AdminPanel = () => {
     if (!selectedRequest || !newStatus) return;
 
     try {
-      await api.put(`/admin/requests/${selectedRequest.id}/status`, {
+      // Use direct endpoint that works with Vercel routing
+      await api.put('/admin/update-status', {
+        requestId: selectedRequest.id,
         status: newStatus,
         comments: comments
       });
