@@ -29,8 +29,21 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'PUT') {
-      // Update request status
-      const { id, status, comments } = req.body;
+      // Update request status - support both URL param and body
+      // URL pattern: /admin/requests/:id/status
+      const urlParts = req.url.split('/');
+      const statusIndex = urlParts.indexOf('status');
+      
+      let id, status, comments;
+      
+      if (statusIndex > 0) {
+        // URL has /admin/requests/:id/status format
+        id = urlParts[statusIndex - 1];
+        ({ status, comments } = req.body);
+      } else {
+        // Body has id
+        ({ id, status, comments } = req.body);
+      }
       
       if (!id) {
         res.status(400).json({ success: false, message: 'Request ID is required' });
