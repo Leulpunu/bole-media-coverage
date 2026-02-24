@@ -30,11 +30,9 @@ This guide will walk you through connecting your app to Neon database and deploy
 
 2. **Or use psql (command line):**
 
-   
 ```
 bash
-   psql "YOUR_NEON_CONNECTION_STRING" -f api/schema.sql
-   
+psql "YOUR_NEON_CONNECTION_STRING" -f api/schema.sql
 ```
 
 ## Step 3: Deploy to Vercel

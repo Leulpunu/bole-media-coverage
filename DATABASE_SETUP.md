@@ -59,7 +59,7 @@ INSERT INTO users (id, username, password, role) VALUES ('2', 'editor', 'editor1
 1. Create a `.env` file in the project root:
 
 ```
-text
+bash
 DATABASE_URL=postgres://your-username:your-password@ep-xxx.us-east-1.aws.neon.tech/bole-media-coverage?sslmode=require
 ```
 

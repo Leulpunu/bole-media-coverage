@@ -41,6 +41,21 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  // Parse URL path to extract requestId and check for /status
+  const urlPath = (req.url || '').replace(/^\//, '');
+  const pathParts = urlPath.split('/');
+  
+  // URL format: admin/requests/:id/status or admin/requests/:id
+  let requestId = null;
+  let isStatusUpdate = false;
+  
+  if (pathParts.length >= 3 && pathParts[2]) {
+    requestId = pathParts[2];
+    isStatusUpdate = pathParts.length >= 4 && pathParts[3] === 'status';
+  } else if (pathParts.length >= 2 && pathParts[1]) {
+    requestId = pathParts[1];
+  }
+
   // GET /api/admin/requests - Get all requests
   if (req.method === 'GET') {
     try {
@@ -62,9 +77,8 @@ module.exports = async function handler(req, res) {
     }
   }
   // PUT /api/admin/requests/:requestId/status - Update request status
-  else if (req.method === 'PUT') {
+  else if (req.method === 'PUT' && isStatusUpdate) {
     try {
-      const requestId = req.params.requestId;
       const { status, comments } = req.body;
       
       const db = await getSql();

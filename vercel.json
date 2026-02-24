@@ -1,43 +1,76 @@
 {
-    "version": 2,
-    "buildCommand": "npm run build",
-    "outputDirectory": "build",
-    "routes": [
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "build",
+  "routes": [
+    {
+      "src": "/api/admin/requests/([^/]+)/status",
+      "dest": "/api/admin/requests.js",
+      "methods": ["GET", "PUT", "POST", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/api/admin/requests/([^/]+)",
+      "dest": "/api/admin/requests.js",
+      "methods": ["GET", "PUT", "POST", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/api/admin/requests",
+      "dest": "/api/admin/requests.js",
+      "methods": ["GET", "PUT", "POST", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/api/admin/users/([^/]+)",
+      "dest": "/api/admin/users.js",
+      "methods": ["GET", "PUT", "POST", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/api/admin/users",
+      "dest": "/api/admin/users.js",
+      "methods": ["GET", "PUT", "POST", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/api/media-requests/track/([^/]+)",
+      "dest": "/api/media-requests/track/[trackingId].js",
+      "methods": ["GET", "PUT", "POST", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/api/media-requests/cancel/([^/]+)",
+      "dest": "/api/media-requests/cancel/[requestId].js",
+      "methods": ["GET", "PUT", "POST", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/api/media-requests",
+      "dest": "/api/media-requests.js",
+      "methods": ["GET", "PUT", "POST", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/api/auth/login",
+      "dest": "/api/auth/login.js",
+      "methods": ["GET", "PUT", "POST", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/manifest.json",
+      "headers": [
         {
-            "src": "/api/(.*)",
-            "dest": "/api/$1"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/index.html"
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
         }
-    ],
-    "headers": [
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
         {
-            "source": "/manifest.json",
-            "headers": [
-                {
-                    "key": "Content-Type",
-                    "value": "application/manifest+json"
-                }
-            ]
-        },
-        {
-            "source": "/api/(.*)",
-            "headers": [
-                {
-                    "key": "Access-Control-Allow-Origin",
-                    "value": "*"
-                },
-                {
-                    "key": "Access-Control-Allow-Headers",
-                    "value": "Content-Type, Authorization"
-                },
-                {
-                    "key": "Access-Control-Allow-Methods",
-                    "value": "GET, POST, PUT, DELETE, OPTIONS"
-                }
-            ]
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
         }
-    ]
+      ]
+    }
+  ]
 }
