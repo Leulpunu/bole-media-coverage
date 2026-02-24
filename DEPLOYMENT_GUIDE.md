@@ -5,7 +5,7 @@ This guide will walk you through connecting your app to Neon database and deploy
 ## Step 1: Create a Neon Database
 
 1. **Go to Neon Console**
-   - Open https://console.neon.tech/ in your browser
+   - Open the [Neon Console](https://console.neon.tech/) in your browser
    - Click "Sign in with GitHub" if not already logged in
 
 2. **Create a New Project**
@@ -29,6 +29,7 @@ This guide will walk you through connecting your app to Neon database and deploy
    - Click "Run"
 
 2. **Or use psql (command line):**
+
    
 ```
 bash
@@ -39,7 +40,7 @@ bash
 ## Step 3: Deploy to Vercel
 
 1. **Go to Vercel**
-   - Open https://vercel.com/
+   - Open the [Vercel Dashboard](https://vercel.com/)
    - Log in with your GitHub account
 
 2. **Import Your Project**
@@ -72,21 +73,25 @@ bash
 ## Troubleshooting
 
 ### "Database not configured" Error
+
 - Make sure DATABASE_URL is set in Vercel project settings
 - Check that your Neon database is not paused (in Neon Console, click "Resume" if it's paused)
 
 ### Login Not Working
+
 - Verify the default users were created in the database
 - Check Vercel function logs for errors
 
 ### Data Not Persisting
+
 - Make sure you're using the deployed URL, not localhost
 - The Neon free tier has a limit - check if you've reached it
 
 ## Alternative: Using Supabase Instead of Neon
 
 If you prefer Supabase:
-1. Go to https://supabase.com/
+
+1. Go to the [Supabase Dashboard](https://supabase.com/)
 2. Create a new project
 3. Go to Settings → Database
 4. Copy the "Connection String" (URI)
@@ -94,5 +99,5 @@ If you prefer Supabase:
 
 ## Need Help?
 
-- Neon Docs: https://neon.tech/docs
-- Vercel Docs: https://vercel.com/docs
+- [Neon Docs](https://neon.tech/docs)
+- [Vercel Docs](https://vercel.com/docs)

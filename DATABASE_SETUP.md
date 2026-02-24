@@ -14,7 +14,8 @@ This project uses Neon (a serverless PostgreSQL) for data storage. Follow these 
 
 In the Neon SQL Editor, run the following SQL:
 
-```sql
+```
+sql
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id VARCHAR(255) PRIMARY KEY,
@@ -58,6 +59,7 @@ INSERT INTO users (id, username, password, role) VALUES ('2', 'editor', 'editor1
 1. Create a `.env` file in the project root:
 
 ```
+text
 DATABASE_URL=postgres://your-username:your-password@ep-xxx.us-east-1.aws.neon.tech/bole-media-coverage?sslmode=require
 ```
 
