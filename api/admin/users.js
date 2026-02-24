@@ -44,8 +44,22 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  // Get the path without query string
+  const urlPath = (req.url || '/').split('?')[0];
+  // Remove leading slash and split
+  let pathParts = urlPath.replace(/^\//, '').split('/');
+  
+  console.log('Original path parts:', pathParts);
+  
+  // If path starts with 'api', remove it
+  if (pathParts[0] === 'api') {
+    pathParts = pathParts.slice(1);
+  }
+  
+  console.log('Processed path parts:', pathParts);
+
   // GET /api/admin/users - Get all users
-  if (req.method === 'GET') {
+  if (pathParts[0] === 'admin' && pathParts[1] === 'users' && req.method === 'GET') {
     try {
       const db = await getSql();
       if (db) {

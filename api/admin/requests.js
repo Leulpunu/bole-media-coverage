@@ -46,9 +46,16 @@ module.exports = async function handler(req, res) {
   // Get the path without query string
   const urlPath = (req.url || '/').split('?')[0];
   // Remove leading slash and split
-  const pathParts = urlPath.replace(/^\//, '').split('/');
+  let pathParts = urlPath.replace(/^\//, '').split('/');
   
-  console.log('Path parts:', pathParts);
+  console.log('Original path parts:', pathParts);
+  
+  // If path starts with 'api', remove it
+  if (pathParts[0] === 'api') {
+    pathParts = pathParts.slice(1);
+  }
+  
+  console.log('Processed path parts:', pathParts);
   
   // Handle /admin/requests (GET - fetch all requests)
   if (pathParts[0] === 'admin' && pathParts[1] === 'requests') {

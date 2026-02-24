@@ -44,7 +44,22 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  if (req.method === 'POST') {
+  // Get the path without query string
+  const urlPath = (req.url || '/').split('?')[0];
+  // Remove leading slash and split
+  let pathParts = urlPath.replace(/^\//, '').split('/');
+  
+  console.log('Original path parts:', pathParts);
+  
+  // If path starts with 'api', remove it
+  if (pathParts[0] === 'api') {
+    pathParts = pathParts.slice(1);
+  }
+  
+  console.log('Processed path parts:', pathParts);
+
+  // POST /auth/login - Login user
+  if (pathParts[0] === 'auth' && pathParts[1] === 'login' && req.method === 'POST') {
     try {
       const { username, password } = req.body;
       

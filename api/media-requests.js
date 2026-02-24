@@ -41,8 +41,22 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  // POST /api/media-requests - Submit new request
-  if (req.method === 'POST') {
+  // Get the path without query string
+  const urlPath = (req.url || '/').split('?')[0];
+  // Remove leading slash and split
+  let pathParts = urlPath.replace(/^\//, '').split('/');
+  
+  console.log('Original path parts:', pathParts);
+  
+  // If path starts with 'api', remove it
+  if (pathParts[0] === 'api') {
+    pathParts = pathParts.slice(1);
+  }
+  
+  console.log('Processed path parts:', pathParts);
+  
+  // POST /media-requests - Submit new request
+  if (pathParts[0] === 'media-requests' && req.method === 'POST') {
     try {
       const requestData = req.body;
       const id = Date.now().toString();
